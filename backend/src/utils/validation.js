@@ -1,34 +1,88 @@
 const Joi = require('joi');
 
+// ============================================================
+// LIVE / FORECAST WEATHER QUERY
+// Used for:
+// - Today → Live weather
+// - Tomorrow → Forecast weather
+// ============================================================
+
 const liveWeatherQuerySchema = Joi.object({
-  latitude: Joi.number().min(-90).max(90).required(),
-  longitude: Joi.number().min(-180).max(180).required()
-});
+  latitude: Joi.number()
+    .min(-90)
+    .max(90)
+    .required()
+    .messages({
+      'number.base': 'Latitude must be a valid number.',
+      'number.min': 'Latitude cannot be less than -90 degrees.',
+      'number.max': 'Latitude cannot exceed 90 degrees.',
+      'any.required': 'Latitude is required.'
+    }),
 
-const weatherQuerySchema = Joi.object({
-  latitude: Joi.number().min(-90).max(90).required().messages({
-    'number.base': 'Latitude must be a valid number.',
-    'number.min': 'Latitude cannot be less than -90 degrees.',
-    'number.max': 'Latitude cannot exceed 90 degrees.',
-    'any.required': 'Latitude is required.'
-  }),
-
-  longitude: Joi.number().min(-180).max(180).required().messages({
-    'number.base': 'Longitude must be a valid number.',
-    'number.min': 'Longitude cannot be less than -180 degrees.',
-    'number.max': 'Longitude cannot exceed 180 degrees.',
-    'any.required': 'Longitude is required.'
-  }),
+  longitude: Joi.number()
+    .min(-180)
+    .max(180)
+    .required()
+    .messages({
+      'number.base': 'Longitude must be a valid number.',
+      'number.min': 'Longitude cannot be less than -180 degrees.',
+      'number.max': 'Longitude cannot exceed 180 degrees.',
+      'any.required': 'Longitude is required.'
+    }),
 
   date: Joi.string()
     .pattern(/^\d{4}-\d{2}-\d{2}$/)
     .required()
     .messages({
       'string.pattern.base':
-        'Date must be formatted as YYYY-MM-DD (e.g., 2025-01-15).',
+        'Date must be formatted as YYYY-MM-DD (e.g., 2026-09-09).',
       'any.required': 'Date is required.'
     })
 });
+
+
+// ============================================================
+// NASA POWER WEATHER QUERY
+// Used for historical / past dates
+// ============================================================
+
+const weatherQuerySchema = Joi.object({
+  latitude: Joi.number()
+    .min(-90)
+    .max(90)
+    .required()
+    .messages({
+      'number.base': 'Latitude must be a valid number.',
+      'number.min': 'Latitude cannot be less than -90 degrees.',
+      'number.max': 'Latitude cannot exceed 90 degrees.',
+      'any.required': 'Latitude is required.'
+    }),
+
+  longitude: Joi.number()
+    .min(-180)
+    .max(180)
+    .required()
+    .messages({
+      'number.base': 'Longitude must be a valid number.',
+      'number.min': 'Longitude cannot be less than -180 degrees.',
+      'number.max': 'Longitude cannot exceed 180 degrees.',
+      'any.required': 'Longitude is required.'
+    }),
+
+  date: Joi.string()
+    .pattern(/^\d{4}-\d{2}-\d{2}$/)
+    .required()
+    .messages({
+      'string.pattern.base':
+        'Date must be formatted as YYYY-MM-DD (e.g., 2026-09-09).',
+      'any.required': 'Date is required.'
+    })
+});
+
+
+// ============================================================
+// SHELTER DESIGN SCHEMA
+// ============================================================
 
 const shelterSchema = Joi.object({
   length: Joi.number()
@@ -124,7 +178,8 @@ const shelterSchema = Joi.object({
     .max(0.5)
     .default(0.05),
 
-  initialIndoorTemp: Joi.number().optional(),
+  initialIndoorTemp: Joi.number()
+    .optional(),
 
   comfortMin: Joi.number()
     .default(18),
@@ -162,21 +217,13 @@ const shelterSchema = Joi.object({
   return value;
 });
 
-/*
- * Thermal Simulation Request Schema
- *
- * weatherHourly contains exactly 24 hourly weather records.
- *
- * Live weather records may contain:
- * - hour
- * - time
- * - timestamp
- * - temperature
- * - humidity
- * - windSpeed
- * - solarRadiation
- * - solarRadiationSource
- */
+
+// ============================================================
+// THERMAL SIMULATION REQUEST SCHEMA
+//
+// weatherHourly must contain exactly 24 records.
+// ============================================================
+
 const simulateRequestSchema = Joi.object({
   shelter: shelterSchema.required(),
 
@@ -189,7 +236,6 @@ const simulateRequestSchema = Joi.object({
 
         time: Joi.string().required(),
 
-        // ISO timestamp supplied by live weather service
         timestamp: Joi.string()
           .isoDate()
           .optional(),
@@ -202,7 +248,6 @@ const simulateRequestSchema = Joi.object({
 
         solarRadiation: Joi.number().required(),
 
-        // Example: "model" / "satellite"
         solarRadiationSource: Joi.string().optional()
       })
     )
@@ -213,6 +258,11 @@ const simulateRequestSchema = Joi.object({
         'Weather dataset must contain exactly 24 hourly records.'
     })
 });
+
+
+// ============================================================
+// EXPORTS
+// ============================================================
 
 module.exports = {
   weatherQuerySchema,
