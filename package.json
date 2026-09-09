@@ -1,0 +1,12 @@
+{
+  "name": "thermal-sense-monorepo",
+  "version": "1.0.0",
+  "description": "Thermal Sense - Shelter Thermal Simulation & Optimization for DRDO / Indian Armed Forces",
+  "scripts": {
+    "start:backend": "cd backend && npm start",
+    "start:frontend": "cd frontend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "test:backend": "cd backend && npm test",
+    "test:integration": "cd backend && node tests/integration.test.js"
+  }
+}
